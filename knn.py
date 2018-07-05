@@ -4,7 +4,6 @@
 #
 
 import numpy as np
-import pickle
 from sklearn import model_selection
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
@@ -44,6 +43,7 @@ def validate(clf, validate_image, validate_label):
 	print('----------------------------------------------------')
 
 def predict(clf, test_image, test_label):
+	print('----------------------------------------------------')
 	# calculate accuracy and confusion-matrix on TEST data
 	predicted_label = clf.predict(test_image)
 	accuracy = accuracy_score(test_label, predicted_label)
@@ -68,12 +68,6 @@ if __name__ == '__main__':
 	##> train
 	knn_classifier = train(train_image, train_label)
 	print('finish train')
-
-	with open('MNIST_KNN.pickle','wb') as f:
-		pickle.dump(knn_classifier, f)
-
-	pickle_in = open('MNIST_KNN.pickle','rb')
-	knn_classifier = pickle.load(pickle_in)
 
 	print('\nstart validating')
 	##> do validation
