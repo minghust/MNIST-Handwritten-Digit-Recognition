@@ -1,76 +1,86 @@
-# K Nearest Neighbors
+#!/usr/bin/python3
+#
+## Created by Ming Zhang on 2018-07-04
+#
 
-import sys
 import numpy as np
 import pickle
 from sklearn import model_selection
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
-from MNIST_Dataset_Loader.mnist_loader import MNIST
-
-print('\nLoading MNIST Data...')
-
-data = MNIST('./MNIST_Dataset_Loader/dataset/')
-
-print('\nLoading Training Data...')
-img_train, labels_train = data.load_training()
-train_img = np.array(img_train)
-train_labels = np.array(labels_train)
-
-print('\nLoading Testing Data...')
-img_test, labels_test = data.load_testing()
-test_img = np.array(img_test)
-test_labels = np.array(labels_test)
+from loader import LoadData
 
 
-#Features
-X = train_img
+def loadTrainData(image_path, label_path):
+	image_train, label_train = LoadData(image_path, label_path)
+	X = np.array(image_train)
+	y = np.array(label_train)
+	return X, y
 
-#Labels
-y = train_labels
+def loadTestData(image_path, label_path):
+	image_test, label_test = LoadData(image_path, label_path)
+	test_image = np.array(image_test)
+	test_label = np.array(label_test)
+	return test_image, test_label
 
-print('\nPreparing Classifier Training and Validation Data...')
-X_train, X_test, y_train, y_test = model_selection.train_test_split(X,y,test_size=0.1)
+def train(train_image, train_label):
+	#---------------- start train -------------
+	clf = KNeighborsClassifier(n_neighbors=5,algorithm='auto',n_jobs=10)
+	clf.fit(train_image, train_label)
+	return clf
+
+def validate(clf, validate_image, validate_label):
+	print('----------------------------------------------------')
+	# calculate accuracy and confusion-matrix on VALIDATION data
+	confidence = clf.score(validate_image, validate_label)
+	print('\nKNN Trained Classifier Confidence: ',confidence)
+	
+	predicted_label = clf.predict(validate_image)
+	accuracy = accuracy_score(validate_label, predicted_label)
+	print('\n\nAccuracy of Classifier on Validation Image Data: ',accuracy)
+
+	confusionMatrix = confusion_matrix(validate_label, predicted_label)
+	print('\nConfusion Matrix: \n',confusionMatrix)
+	print('----------------------------------------------------')
+
+def predict(clf, test_image, test_label):
+	# calculate accuracy and confusion-matrix on TEST data
+	predicted_label = clf.predict(test_image)
+	accuracy = accuracy_score(test_label, predicted_label)
+	print('\n\nAccuracy of Classifier on Test Images: ',accuracy)
+	
+	confusionMatrixTest = confusion_matrix(test_label,predicted_label)
+	print('\nConfusion Matrix for Test Data: \n',confusionMatrixTest)
+	print('----------------------------------------------------')
 
 
-print('\nKNN Classifier with n_neighbors = 5, algorithm = auto, n_jobs = 10')
-print('\nPickling the Classifier for Future Use...')
-clf = KNeighborsClassifier(n_neighbors=5,algorithm='auto',n_jobs=10)
-clf.fit(X_train,y_train)
+if __name__ == '__main__':
+	##> load train data and test data
+	print('start loading data')
+	X, y = loadTrainData('./dataset/train-images.idx3-ubyte', './dataset/train-labels.idx1-ubyte')
+	test_image, test_label = loadTestData('./dataset/t10k-images.idx3-ubyte', './dataset/t10k-labels.idx1-ubyte')
+	print('finish loading data')
 
-with open('MNIST_KNN.pickle','wb') as f:
-	pickle.dump(clf, f)
+	##> split train data into TRAINING DATA and VALIDATION DATA
+	train_image, validate_image, train_label, validate_label = model_selection.train_test_split(X,y,test_size=0.1)
 
-pickle_in = open('MNIST_KNN.pickle','rb')
-clf = pickle.load(pickle_in)
+	print('\nstart train')
+	##> train
+	knn_classifier = train(train_image, train_label)
+	print('finish train')
 
-print('\nCalculating Accuracy of trained Classifier...')
-confidence = clf.score(X_test,y_test)
+	with open('MNIST_KNN.pickle','wb') as f:
+		pickle.dump(knn_classifier, f)
 
-print('\nMaking Predictions on Validation Data...')
-y_pred = clf.predict(X_test)
+	pickle_in = open('MNIST_KNN.pickle','rb')
+	knn_classifier = pickle.load(pickle_in)
 
-print('\nCalculating Accuracy of Predictions...')
-accuracy = accuracy_score(y_test, y_pred)
+	print('\nstart validating')
+	##> do validation
+	validate(knn_classifier, validate_image, validate_label)
+	print('finish validating')
 
-print('\nCreating Confusion Matrix...')
-conf_mat = confusion_matrix(y_test,y_pred)
-
-print('\nKNN Trained Classifier Confidence: ',confidence)
-print('\nPredicted Values: ',y_pred)
-print('\nAccuracy of Classifier on Validation Image Data: ',accuracy)
-print('\nConfusion Matrix: \n',conf_mat)
-
-
-print('\nMaking Predictions on Test Input Images...')
-test_labels_pred = clf.predict(test_img)
-
-print('\nCalculating Accuracy of Trained Classifier on Test Data... ')
-acc = accuracy_score(test_labels,test_labels_pred)
-
-print('\n Creating Confusion Matrix for Test Data...')
-conf_mat_test = confusion_matrix(test_labels,test_labels_pred)
-
-print('\nPredicted Labels for Test Images: ',test_labels_pred)
-print('\nAccuracy of Classifier on Test Images: ',acc)
-print('\nConfusion Matrix for Test Data: \n',conf_mat_test)
+	print('\nstart predicting')
+	##> do prediction
+	predict(knn_classifier, test_image, test_label)
+	print('finish predicting')
