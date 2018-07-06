@@ -24,7 +24,7 @@ def loadTestData(image_path, label_path):
 
 def train(train_image, train_label):
 	#---------------- start train -------------
-	clf = KNeighborsClassifier(n_neighbors=5,algorithm='auto',n_jobs=10)
+	clf = KNeighborsClassifier(n_neighbors=3,algorithm='auto',n_jobs=10)
 	clf.fit(train_image, train_label)
 	return clf
 
@@ -32,14 +32,14 @@ def validate(clf, validate_image, validate_label):
 	print('----------------------------------------------------')
 	# calculate accuracy and confusion-matrix on VALIDATION data
 	confidence = clf.score(validate_image, validate_label)
-	print('\nKNN Trained Classifier Confidence: ',confidence)
+	print('\nKNN Classifier Confidence: ',confidence)
 	
 	predicted_label = clf.predict(validate_image)
 	accuracy = accuracy_score(validate_label, predicted_label)
-	print('\n\nAccuracy of Classifier on Validation Image Data: ',accuracy)
+	print('\n\nOn VALIDATION images, KNN accuracy: ',accuracy)
 
 	confusionMatrix = confusion_matrix(validate_label, predicted_label)
-	print('\nConfusion Matrix: \n',confusionMatrix)
+	print('\nVALIDATION Confusion Matrix: \n',confusionMatrix)
 	print('----------------------------------------------------')
 
 def predict(clf, test_image, test_label):
@@ -47,10 +47,10 @@ def predict(clf, test_image, test_label):
 	# calculate accuracy and confusion-matrix on TEST data
 	predicted_label = clf.predict(test_image)
 	accuracy = accuracy_score(test_label, predicted_label)
-	print('\n\nAccuracy of Classifier on Test Images: ',accuracy)
+	print('\n\nOn TEST images, KNN accuracy: ',accuracy)
 	
 	confusionMatrixTest = confusion_matrix(test_label,predicted_label)
-	print('\nConfusion Matrix for Test Data: \n',confusionMatrixTest)
+	print('\nTEST Confusion Matrix: \n',confusionMatrixTest)
 	print('----------------------------------------------------')
 
 

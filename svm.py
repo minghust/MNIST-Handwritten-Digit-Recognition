@@ -32,14 +32,14 @@ def validate(clf, validate_image, validate_label):
 	print('----------------------------------------------------')
 	# calculate accuracy and confusion-matrix on VALIDATION data
 	confidence = clf.score(validate_image, validate_label)
-	print('\nSVM Trained Classifier Confidence: ',confidence)
+	print('\nSVM Classifier Confidence: ',confidence)
 	
 	predicted_label = clf.predict(validate_image)
 	accuracy = accuracy_score(validate_label, predicted_label)
-	print('\n\nAccuracy of Classifier on Validation Image Data: ',accuracy)
+	print('\n\nOn VALIDATION images, SVM accuracy: ',accuracy)
 
 	confusionMatrix = confusion_matrix(validate_label, predicted_label)
-	print('\nConfusion Matrix: \n',confusionMatrix)
+	print('\nVALIDATION Confusion Matrix: \n',confusionMatrix)
 	print('----------------------------------------------------')
 
 def predict(clf, test_image, test_label):
@@ -47,10 +47,10 @@ def predict(clf, test_image, test_label):
 	# calculate accuracy and confusion-matrix on TEST data
 	predicted_label = clf.predict(test_image)
 	accuracy = accuracy_score(test_label, predicted_label)
-	print('\n\nAccuracy of Classifier on Test Images: ',accuracy)
+	print('\n\nOn TEST images, SVM accuracy: ',accuracy)
 	
 	confusionMatrixTest = confusion_matrix(test_label,predicted_label)
-	print('\nConfusion Matrix for Test Data: \n',confusionMatrixTest)
+	print('\nTEST Confusion Matrix: \n',confusionMatrixTest)
 	print('----------------------------------------------------')
 
 
